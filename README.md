@@ -20,8 +20,13 @@ its connection.
   disappears on its own once the request is on its way again.
 - While quota is still available nothing happens at all — this only triggers after a real
   refusal, and there is no setting to turn it on or off.
-- Per request it tries at most 6 reconnects, each looking for up to 8 fresh addresses.
+- Per request it tries at most 6 reconnects, each looking for up to 4 fresh addresses.
   Addresses that were refused are skipped for the next 24 hours.
+- If no fresh address could be found, a single warning line says so before the retry
+  continues, so a run that keeps hitting the limit says why instead of looking stuck.
+- Extra egress sources can be added with `OPENCODE_WARP_PROXIES` (HTTP proxies) and
+  `OPENCODE_WARP_SOCKS` (SOCKS5, typically a local Tor). They are used only after every
+  WARP reconnect failed, and a source that just failed is benched for ten minutes.
 - If every address is exhausted, the request stops with the usual quota message: wait for
   the daily reset, or switch provider.
 
@@ -294,6 +299,8 @@ Environment variables:
 | `OPENCODE_WARP_HOME` | `~/.local/share/opencode/tjk-warp` | where logs, device and companion binary live |
 | `OPENCODE_WARP_HOSTS` | `opencode.ai` | hosts routed through the tunnel, comma separated |
 | `OPENCODE_WARP_PROXY` | `$OPENCODE_WARP_HOME/wireproxy` | reuse a companion binary already on the machine |
+| `OPENCODE_WARP_PROXIES` | none | HTTP proxies tried after every WARP reconnect fails, comma separated |
+| `OPENCODE_WARP_SOCKS` | none | SOCKS5 endpoints (`host:port`) for the same role; a local Tor works directly |
 
 The first rotation needs internet access once to fetch the companion binary; it is cached
 after that. If downloads are blocked on your machine, put one in place yourself and point
