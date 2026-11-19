@@ -27,28 +27,44 @@ its connection.
 
 ## Install
 
-The binary is self-contained: one file, no installer and no package manager. Download it
-from the **Releases** page of this repository, pick the asset that matches your OS, then put
-it on your `PATH` so it runs from any directory.
+One file, no installer and no package manager. Four steps: download the right file, verify
+it, put it on your `PATH`, run it.
 
-Available assets:
+### Step 1 — Download
 
-| Asset | Machine |
-|---|---|
-| `opencode-hop-darwin-arm64` | macOS on Apple Silicon |
-| `opencode-hop-darwin-x64` | macOS on Intel |
-| `opencode-hop-linux-x64` | Linux x86_64 |
-| `opencode-hop-linux-arm64` | Linux ARM64 |
-| `opencode-hop-windows-x64.exe` | Windows x86_64 |
-| `opencode-hop-windows-arm64.exe` | Windows ARM64 |
+Open the [latest release](https://github.com/TkgJamuKeliling/opencode-hop/releases/latest)
+and download the file that matches your machine, plus `SHA256SUMS`.
 
-Each release also ships `SHA256SUMS`. Check the downloaded file before running it:
+| Asset | Machine | Check yours with |
+|---|---|---|
+| `opencode-hop-darwin-arm64` | macOS, Apple Silicon (M1/M2/M3/M4) | `uname -sm` → `Darwin arm64` |
+| `opencode-hop-darwin-x64` | macOS, Intel | `uname -sm` → `Darwin x86_64` |
+| `opencode-hop-linux-x64` | Linux, x86_64 | `uname -sm` → `Linux x86_64` |
+| `opencode-hop-linux-arm64` | Linux, ARM64 | `uname -sm` → `Linux aarch64` |
+| `opencode-hop-windows-x64.exe` | Windows, x86_64 | `$env:PROCESSOR_ARCHITECTURE` → `AMD64` |
+| `opencode-hop-windows-arm64.exe` | Windows, ARM64 | `$env:PROCESSOR_ARCHITECTURE` → `ARM64` |
+
+Still unsure on macOS? `uname -m` prints `arm64` on Apple Silicon and `x86_64` on Intel.
+
+### Step 2 — Verify the download
+
+Put `SHA256SUMS` next to the file you downloaded, then run the check from that folder:
 
 ```bash
-shasum -a 256 -c SHA256SUMS --ignore-missing
+cd ~/Downloads
+shasum -a 256 -c SHA256SUMS --ignore-missing      # Linux: sha256sum -c SHA256SUMS
 ```
 
-### macOS / Linux
+Expected output is one line, `opencode-hop-darwin-arm64: OK`. Anything else means the
+download is incomplete — get it again. `--ignore-missing` only skips the other platforms'
+entries, it does not skip yours.
+
+### Step 3 — Install the file
+
+Pick your platform. The same commands work for every asset name; only the file name
+changes.
+
+macOS and Linux:
 
 ```bash
 mkdir -p ~/.local/bin
@@ -56,15 +72,29 @@ mv ~/Downloads/opencode-hop-darwin-arm64 ~/.local/bin/opencode-hop
 chmod +x ~/.local/bin/opencode-hop
 ```
 
-If macOS refuses to open it because it came from the internet, clear the quarantine flag
-once:
+macOS only: the first run may be blocked by Gatekeeper, because this binary is not signed
+with a paid Apple certificate. Clear the quarantine flag once:
 
 ```bash
-xattr -d com.apple.quarantine ~/.local/bin/opencode-hop
+xattr -dr com.apple.quarantine ~/.local/bin/opencode-hop
 ```
 
-Add that folder to `PATH`. No `sudo`, and it survives reboots once it is in your shell
-config:
+Prefer the mouse? Try to open it once, then go to **System Settings → Privacy &
+Security**, scroll down, and click **Open Anyway** next to the blocked-item notice. The
+same applies to any file you downloaded again later: the flag travels with the file.
+
+Windows (PowerShell, current user only, no administrator rights):
+
+```powershell
+New-Item -ItemType Directory -Force "$env:USERPROFILE\bin" | Out-Null
+Move-Item "$env:USERPROFILE\Downloads\opencode-hop-windows-x64.exe" `
+          "$env:USERPROFILE\bin\opencode-hop.exe"
+Unblock-File "$env:USERPROFILE\bin\opencode-hop.exe"
+```
+
+### Step 4 — Make it callable from anywhere
+
+Add the folder to `PATH` once, in your shell config. No `sudo`, and it survives reboots:
 
 ```bash
 # zsh (default on macOS)
@@ -79,7 +109,23 @@ source ~/.bashrc
 fish_add_path ~/.local/bin
 ```
 
-Verify:
+For every user on the machine, link it where the system already looks instead:
+
+```bash
+sudo mkdir -p /usr/local/bin
+sudo ln -sf "$HOME/.local/bin/opencode-hop" /usr/local/bin/opencode-hop
+```
+
+A symlink keeps working after an upgrade, because it points at the path, not at the old file.
+
+Windows:
+
+```powershell
+setx PATH "$env:USERPROFILE\bin;$env:Path"     # future sessions
+$env:Path = "$env:USERPROFILE\bin;$env:Path"   # this session
+```
+
+### Step 5 — Check it works
 
 ```bash
 which opencode-hop        # -> /home/<you>/.local/bin/opencode-hop
@@ -87,54 +133,35 @@ opencode-hop --version    # -> opencode v2.3.2
 cd / && opencode-hop run "say ok"
 ```
 
-`which` printing the path inside your home folder is the proof it is global for your shell.
+`which` printing a path inside your home folder is the proof it is global for your shell.
+Command not found means the shell config from step 4 has not been reloaded, or the wrong
+file was added there.
 
-For every user on the machine, skip the `PATH` edit and link it where the system already
-looks:
-
-```bash
-sudo mkdir -p /usr/local/bin
-sudo ln -sf "$HOME/.local/bin/opencode-hop" /usr/local/bin/opencode-hop
-```
-
-A symlink stays valid after an upgrade because it points at the path, not at the old file.
-
-Linux extras: on a musl distro (Alpine) use a `-musl` build; if `/usr/local/bin` is not on
-`PATH` for your shell, add it the same way as above instead of using `sudo`.
-
-### Windows
-
-PowerShell, current user only — no administrator rights:
+Windows:
 
 ```powershell
-New-Item -ItemType Directory -Force "$env:USERPROFILE\bin" | Out-Null
-Move-Item "$env:USERPROFILE\Downloads\opencode-hop-windows-x64.exe" `
-          "$env:USERPROFILE\bin\opencode-hop.exe"
-
-# persist for future sessions
-setx PATH "$env:USERPROFILE\bin;$env:Path"
-
-# this session
-$env:Path = "$env:USERPROFILE\bin;$env:Path"
-
 where.exe opencode-hop
 opencode-hop --version
-```
-
-Windows may warn about an unsigned download from the internet. Choose **More info → Run
-anyway**, or clear the mark of the web first:
-
-```powershell
-Unblock-File "$env:USERPROFILE\bin\opencode-hop.exe"
 ```
 
 Notes for Windows:
 
 - The ARM64 build uses the x64 companion binary, since that is the only build published
   upstream. Windows emulates it transparently.
-- No `chmod` step; it is not needed there.
+- There is no `chmod` step on Windows.
 - A running `.exe` cannot be overwritten, so stop the service before replacing the binary:
   `opencode-hop service stop`, replace the file, then `opencode-hop service start`.
+
+### If something goes wrong
+
+| What you see | Why | Fix |
+|---|---|---|
+| "cannot be opened because Apple cannot check it for malicious software" | macOS quarantine on a downloaded, unsigned file | step 3: `xattr -dr com.apple.quarantine <file>`, or **Open Anyway** in Privacy & Security |
+| `killed: 9`, or `rc=137` with no output | binary replaced while a process was still using it, or the wrong architecture | `rm` the file first, then copy; check `uname -m` against step 1 |
+| `command not found: opencode-hop` | folder not on `PATH`, or shell not reloaded | step 4, then open a new terminal |
+| checksum mismatch | incomplete download | download the file again |
+| `Free usage limit reached` and the line about reconnecting loops | a system-wide VPN is already active, so reconnects keep landing on the same network | disconnect that VPN while using this build |
+| a leftover helper process from a crashed reconnect | nothing frees it while the service holds it | `opencode-hop service restart` |
 
 From here the examples just say `opencode-hop`.
 
