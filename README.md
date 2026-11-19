@@ -1,12 +1,13 @@
 # opencode-hop
 
-An opencode build that swaps the outbound connection automatically whenever the free tier
-rejects a request. No account juggling, no model switching, no VPN of your own.
+An [opencode](https://github.com/anomalyco/opencode) build that swaps the outbound connection
+automatically whenever the free tier rejects a request. No account juggling, no model
+switching, no VPN of your own.
 
 Single binary: `opencode-hop`.
 
-Unofficial build. Not made by, endorsed by, or affiliated with the OpenCode team; see
-[NOTICE](NOTICE).
+Unofficial build. Not made by, endorsed by, or affiliated with the
+[OpenCode](https://github.com/anomalyco/opencode) team; see [NOTICE](NOTICE).
 
 ## What to expect
 
@@ -192,7 +193,8 @@ process keeps the code it already loaded in memory.
 
 ## Running next to a stock install
 
-This build keeps its own slots, so it can run alongside an installed opencode:
+This build keeps its own slots, so it can run alongside an installed
+[opencode](https://github.com/anomalyco/opencode):
 
 | | owned by this binary |
 |---|---|
@@ -234,9 +236,9 @@ after that. If downloads are blocked on your machine, put one in place yourself 
 
 ## License
 
-MIT, inherited from the upstream project. `LICENSE` must travel with any binary taken from
-here, and `NOTICE` lists third-party components and the non-affiliation statement. See
-[LICENSE](LICENSE) and [NOTICE](NOTICE).
+MIT, inherited from the [upstream project](https://github.com/anomalyco/opencode).
+`LICENSE` must travel with any binary taken from here, and `NOTICE` lists third-party
+components and the non-affiliation statement. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 ## Folder contents
 
