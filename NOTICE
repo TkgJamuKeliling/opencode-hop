@@ -1,0 +1,41 @@
+opencode-hop
+=================
+
+This is an unofficial build of opencode. It is not built by the OpenCode team, not
+endorsed by them, and not affiliated with them in any way. Issues, questions, and
+support requests belong to this distribution, not to the upstream project.
+
+Upstream project: https://github.com/anomalyco/opencode
+
+
+Third-party software
+--------------------
+
+opencode
+  MIT License, Copyright (c) 2025 opencode
+  https://github.com/anomalyco/opencode
+  Compiled into every binary in this distribution. Its license text is reproduced in
+  LICENSE, which must be shipped alongside any binary taken from here.
+
+wireproxy
+  ISC-style license, Copyright (c) 2026 Tsz Fung Wong <im@windtfw.com>
+  https://github.com/pufferffish/wireproxy
+  Not part of this repository and not redistributed here. Each user's copy is fetched
+  from the upstream release at runtime, on the first network rotation, and cached in
+  the user's own data directory. The upstream copyright and permission notice apply to
+  that file.
+
+Dependencies
+------------
+
+The binary bundles the npm dependencies declared in the upstream `bun.lock` for the
+version this build is based on. Their licenses are those of their own packages; the
+upstream repository is the authoritative list for the exact dependency set.
+
+
+Trademarks
+----------
+
+"opencode" is used here only to describe what this binary is built from. No trademark
+right is claimed, and nothing in this distribution should be read as permission to use
+their marks for a different product.

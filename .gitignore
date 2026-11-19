@@ -1,0 +1,7 @@
+# The binary is published as a release asset, not tracked: GitHub refuses files over 100 MB
+# and this one is ~190 MB. Everything except the text files below stays out of git.
+*
+!.gitignore
+!README.md
+!LICENSE
+!NOTICE
