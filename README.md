@@ -232,6 +232,44 @@ This build keeps its own slots, so it can run alongside an installed
 
 Session history stays separate; config and API keys are the same for both.
 
+## 9router
+
+[9router](https://github.com/decolua/9router) serves an OpenAI-compatible endpoint and writes the
+opencode provider block into `~/.config/opencode/opencode.json`. Both builds read that file, so
+there is nothing to connect twice:
+
+| your machine | what to do |
+|---|---|
+| a stock opencode is already connected to 9router | nothing — this build sees the `9router/*` models on its next start |
+| no opencode installed at all | one setup step, below |
+
+9router looks for the `opencode` name on the PATH of its own process, and falls back to the
+existence of `~/.config/opencode/opencode.json`. With only this build installed neither is true,
+so the CLI Tools page reports **not installed** even though the connection itself is fine. Give it
+the config file:
+
+1. If `~/.config/opencode/opencode.json` does not exist, create it with the two bytes `{}`.
+2. Refresh the 9router dashboard, then CLI Tools → OpenCode. The status becomes **Not Configured**.
+3. Pick the models and press Apply. The status becomes **Connected**, and the provider block is
+   written into the file from step 1.
+4. Restart this build. The models are listed as `9router/<model>`.
+
+Notes:
+
+- Step 1 is a marker only: at that point 9router checks that the file exists and does not read it.
+  The real content arrives with Apply.
+- Use real model IDs. The `provider/model-id` in 9router's manual snippet is a placeholder, and a
+  `model` pointing at it does not resolve.
+- Apply also sets the top-level `model` and `agent.explorer` to the 9router model. Back the file up
+  first if it already holds a config you want to keep.
+- `options.baseURL` is whatever the dashboard reports. On the same machine
+  `http://127.0.0.1:20128/v1` answers faster than the tunnel URL and survives a tunnel restart.
+- Installing stock opencode later changes nothing: it reads the same file, and 9router's check then
+  resolves to the stock binary. The two keep their own service, port and session database.
+- Prefer a real binary over the empty file? Put an `opencode` symlink where 9router looks, for
+  example `/usr/local/bin/opencode` → this binary, and skip step 1. Both names then run the same
+  program; the channel baked into the build does not change.
+
 ## Logs and settings
 
 Every rotation trace lives in `~/.local/share/opencode/tjk-warp/`:
