@@ -5,3 +5,6 @@
 !README.md
 !LICENSE
 !NOTICE
+!.github/
+!.github/ISSUE_TEMPLATE/
+!.github/ISSUE_TEMPLATE/*.yml

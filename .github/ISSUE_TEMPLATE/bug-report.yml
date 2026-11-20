@@ -1,0 +1,140 @@
+name: Bug report
+description: Report a crash, install problem, or unexpected behaviour in opencode-hop.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Please fill in as much as you can —
+        incomplete reports are hard to reproduce.
+
+        You can write in English or Indonesian.
+
+        Before opening a new issue, check the
+        [troubleshooting table](https://github.com/TkgJamuKeliling/opencode-hop#if-something-goes-wrong)
+        and make sure you are on the
+        [latest release](https://github.com/TkgJamuKeliling/opencode-hop/releases/latest).
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Paste the exact output of `opencode-hop --version`.
+      placeholder: opencode v2.3.3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: OS and architecture
+      options:
+        - macOS arm64 (Apple Silicon)
+        - macOS x64 (Intel)
+        - Linux x64
+        - Linux arm64
+        - Windows x64
+        - Windows arm64
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Downloaded a release asset
+        - Built from source
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you run, what did you expect, and what happened instead?
+      placeholder: |
+        1. Run `opencode-hop`
+        2. Ask ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Exact error message
+      description: Copy the full message from the TUI or terminal, including the retry line.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Does it affect every model?
+      options:
+        - Only free models (for example deepseek-v4.1-flash-free)
+        - Every model and provider
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: network
+    attributes:
+      label: Network environment
+      description: VPN, proxy, firewall, corporate network, hotspot, etc. This matters for the rotation feature.
+      placeholder: No VPN, home Wi-Fi, ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Rotation settings (optional)
+      description: Any `OPENCODE_WARP_*` environment variables you set, or a local proxy/Tor.
+      placeholder: OPENCODE_WARP_SOCKS=127.0.0.1:9050
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Rotation logs
+
+        If the error mentions `Free usage limit reached`, `Rotating network`, or
+        `No fresh network`, attach these two files **after** creating the issue:
+
+        - `warp.log`
+        - `warp-burned.json`
+
+        Where to find them:
+
+        - macOS / Linux: `~/.local/share/opencode/tjk-warp/`
+        - Windows: `%USERPROFILE%\.local\share\opencode\tjk-warp\`
+
+        **Do not attach `warp-device.json` or `warp-proxy-*.conf`.** Those files contain
+        private keys and tokens. If you are unsure, attach only the two files above.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Rotation log excerpt
+      description: Optional — paste the last ~100 lines of `warp.log` here if you cannot attach files.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Before submitting
+      options:
+        - label: I am running the latest release, or I cannot update.
+          required: false
+        - label: I did not attach `warp-device.json` or `warp-proxy-*.conf`.
+          required: true

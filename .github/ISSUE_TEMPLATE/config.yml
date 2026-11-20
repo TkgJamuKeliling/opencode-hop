@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Installation and troubleshooting
+    url: https://github.com/TkgJamuKeliling/opencode-hop#install
+    about: Read the install and troubleshooting sections before opening an issue.
+  - name: Latest release
+    url: https://github.com/TkgJamuKeliling/opencode-hop/releases/latest
+    about: Check that you are running the newest build.
