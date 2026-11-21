@@ -32,10 +32,74 @@ its connection.
 
 ## Install
 
-One file, no installer and no package manager. Four steps: download the right file, verify
-it, put it on your `PATH`, run it.
+Two ways: run the installer script, or do the five steps by hand. The script is the
+recommended path because it also handles the 9router marker and a running service.
 
-### Step 1 — Download
+### Automatic install (recommended)
+
+macOS and Linux:
+
+```bash
+curl -fsSL https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.sh | sh
+```
+
+If `curl` is not installed, use `wget`:
+
+```bash
+wget -qO- https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+$p = "$env:TEMP\opencode-hop-install.cmd"
+Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.cmd" -OutFile $p
+Unblock-File $p
+& $p
+```
+
+The installer:
+
+- picks the asset for this machine (macOS and Linux on arm64 or x64, Windows on x64 or
+  ARM64), and refuses a mismatched or musl build with a specific message;
+- downloads the asset and `SHA256SUMS`, verifies the checksum, and checks the binary
+  header before installing;
+- installs to `~/.local/bin/opencode-hop` or `%USERPROFILE%\bin\opencode-hop.exe`;
+- adds that folder to your `PATH` when needed;
+- stops a running service before replacing the binary, then starts it again;
+- creates `~/.config/opencode/opencode.json` (two bytes, `{}`) when no stock `opencode`
+  is visible, so 9router can find this install; an existing file is never touched;
+- prints the installed version.
+
+Options:
+
+```bash
+# pin a release
+curl -fsSL https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.sh | sh -s -- --tag v2.3.4
+
+# report what would happen, without changing anything
+curl -fsSL https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.sh | sh -s -- --check
+
+# print the plan, without changing anything
+curl -fsSL https://github.com/TkgJamuKeliling/opencode-hop/releases/latest/download/install.sh | sh -s -- --dry-run
+```
+
+Windows:
+
+```powershell
+& $p --tag v2.3.4
+& $p --check
+& $p --dry-run
+```
+
+The installer needs `curl` or `wget` on macOS and Linux, and PowerShell 5.1 on Windows.
+It never installs stock `opencode`.
+
+### Manual install
+
+Five steps: download the right file, verify it, install it, put it on your `PATH`, and run it.
+
+#### Step 1 — Download
 
 Open the [latest release](https://github.com/TkgJamuKeliling/opencode-hop/releases/latest)
 and download the file that matches your machine, plus `SHA256SUMS`.
@@ -51,7 +115,7 @@ and download the file that matches your machine, plus `SHA256SUMS`.
 
 Still unsure on macOS? `uname -m` prints `arm64` on Apple Silicon and `x86_64` on Intel.
 
-### Step 2 — Verify the download
+#### Step 2 — Verify the download
 
 Put `SHA256SUMS` next to the file you downloaded, then run the check from that folder:
 
@@ -64,7 +128,7 @@ Expected output is one line, `opencode-hop-darwin-arm64: OK`. Anything else mean
 download is incomplete — get it again. `--ignore-missing` only skips the other platforms'
 entries, it does not skip yours.
 
-### Step 3 — Install the file
+#### Step 3 — Install the file
 
 Pick your platform. The same commands work for every asset name; only the file name
 changes.
@@ -97,7 +161,7 @@ Move-Item "$env:USERPROFILE\Downloads\opencode-hop-windows-x64.exe" `
 Unblock-File "$env:USERPROFILE\bin\opencode-hop.exe"
 ```
 
-### Step 4 — Make it callable from anywhere
+#### Step 4 — Make it callable from anywhere
 
 Add the folder to `PATH` once, in your shell config. No `sudo`, and it survives reboots:
 
@@ -130,7 +194,7 @@ setx PATH "$env:USERPROFILE\bin;$env:Path"     # future sessions
 $env:Path = "$env:USERPROFILE\bin;$env:Path"   # this session
 ```
 
-### Step 5 — Check it works
+#### Step 5 — Check it works
 
 ```bash
 which opencode-hop        # -> /home/<you>/.local/bin/opencode-hop
@@ -157,7 +221,7 @@ Notes for Windows:
 - A running `.exe` cannot be overwritten, so stop the service before replacing the binary:
   `opencode-hop service stop`, replace the file, then `opencode-hop service start`.
 
-### If something goes wrong
+#### If something goes wrong
 
 | What you see | Why | Fix |
 |---|---|---|
@@ -170,7 +234,11 @@ Notes for Windows:
 
 From here the examples just say `opencode-hop`.
 
-### Keeping it global after an upgrade
+#### Keeping it global after an upgrade
+
+The automatic installer is also the upgrade path: run the same command again. It stops the
+service, replaces the binary, and starts it again. The manual steps below do the same by
+hand.
 
 Replace the target file in place, so every shell and any symlink keeps resolving to it.
 
@@ -246,7 +314,7 @@ there is nothing to connect twice:
 | your machine | what to do |
 |---|---|
 | a stock opencode is already connected to 9router | nothing — this build sees the `9router/*` models on its next start |
-| no opencode installed at all | one setup step, below |
+| no opencode installed at all | the automatic installer does step 1 for you; manual steps below |
 
 9router looks for the `opencode` name on the PATH of its own process, and falls back to the
 existence of `~/.config/opencode/opencode.json`. With only this build installed neither is true,
@@ -261,6 +329,8 @@ the config file:
 
 Notes:
 
+- The automatic installer creates this marker when it cannot find a stock `opencode`. If the
+  file already exists, it leaves it alone.
 - Step 1 is a marker only: at that point 9router checks that the file exists and does not read it.
   The real content arrives with Apply.
 - Use real model IDs. The `provider/model-id` in 9router's manual snippet is a placeholder, and a
@@ -315,12 +385,15 @@ components and the non-affiliation statement. See [LICENSE](LICENSE) and [NOTICE
 ## Folder contents
 
 ```
-README.md   this file
-LICENSE     MIT license of the upstream project plus this distribution
-NOTICE      non-affiliation and third-party notices
-.gitignore  ignores everything else; releases carry the binaries
+README.md    this file
+LICENSE      MIT license of the upstream project plus this distribution
+NOTICE       non-affiliation and third-party notices
+install.sh   automatic installer for macOS and Linux
+install.cmd  Windows entry point
+install.ps1  Windows installer used by install.cmd
+.gitignore   ignores everything else; releases carry the binaries
 ```
 
 The binary is not stored in this repository. GitHub rejects files over 100 MB and this one
-is close to 200 MB, so each build is attached to a release instead — that is why the install
-section starts at the Releases page.
+is close to 200 MB, so each build is attached to a release instead. The automatic installer
+fetches the asset for you; the manual section starts at the Releases page.

@@ -2,9 +2,13 @@
 # and this one is ~190 MB. Everything except the text files below stays out of git.
 *
 !.gitignore
+!.gitattributes
 !README.md
 !LICENSE
 !NOTICE
+!install.sh
+!install.cmd
+!install.ps1
 !.github/
 !.github/ISSUE_TEMPLATE/
 !.github/ISSUE_TEMPLATE/*.yml
